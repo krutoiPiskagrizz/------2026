@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
-"""эмулятор оболочки этап 1 REPL"""
+"""эмулятор оболочки. этап 2: кофигурация"""
+import argparse
+import os
 import shlex
 import sys
 
-VFS_NAME = "vfs"  
-
 
 class ShellError(Exception):
-    """Ошибка выполнения команды."""
+ """ошибка выполнения команды"""
 
 
 def cmd_ls(args):
-    # заглушка
-    print("ls", args)
+    print("ls", args)  # заглушка
 
 
 def cmd_cd(args):
-    # заглушка
-    print("cd", args)
+    print("cd", args)  # заглушка
 
 
 def cmd_exit(args):
@@ -29,7 +27,7 @@ COMMANDS = {"ls": cmd_ls, "cd": cmd_cd, "exit": cmd_exit}
 
 def execute(line):
     try:
-        argv = shlex.split(line)  # четко разбирает кавычки
+        argv = shlex.split(line)
     except ValueError as e:
         raise ShellError(f"ошибка разбора: {e}")
     if not argv:
@@ -42,14 +40,49 @@ def execute(line):
     COMMANDS[name](args)
 
 
+def run_script(path, prompt):
+    """Выполняет скрипт: показывает ввод и вывод, ошибочные строки пропускает."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            lines = f.read().splitlines()
+    except OSError as e:
+        print(f"Ошибка: не удалось открыть стартовый скрипт: {e}", file=sys.stderr)
+        return
+    for n, line in enumerate(lines, 1):
+        print(prompt + line)  # имитируем ввод пользователя
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        try:
+            execute(line)
+        except ShellError as e:
+            print(e, file=sys.stderr)
+            print(f"[скрипт] ошибка в строке {n}, строка пропущена", file=sys.stderr)
+
+
 def main():
+    ap = argparse.ArgumentParser(description="Эмулятор оболочки UNIX")
+    ap.add_argument("--vfs", required=True, help="путь к физическому расположению VFS")
+    ap.add_argument("--script", help="путь к стартовому скрипту")
+    a = ap.parse_args()
+
+    # отладочный вывод всех параметров
+    print("[debug] Параметры запуска:")
+    print(f"[debug]   vfs    = {a.vfs}")
+    print(f"[debug]   script = {a.script}")
+
+    vfs_name = os.path.splitext(os.path.basename(a.vfs))[0] or "vfs"
+    prompt = f"user@{vfs_name}:/$ "
+
+    if a.script:
+        run_script(a.script, prompt)
+
     while True:
         try:
-            line = input(f"user@{VFS_NAME}:/$ ")
-        except EOFError:  # сtrl+d
+            line = input(prompt)
+        except EOFError:
             print()
             break
-        except KeyboardInterrupt:  # сtrl+с
+        except KeyboardInterrupt:
             print()
             continue
         try:
