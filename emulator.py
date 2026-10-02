@@ -5,6 +5,8 @@ import os
 import shlex
 import sys
 
+VFS_NAME = "vfs"
+
 
 class ShellError(Exception):
  """ошибка выполнения команды"""

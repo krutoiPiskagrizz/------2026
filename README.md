@@ -49,12 +49,12 @@ exit	выход из эмулятора
 Структура проекта
 emulator.py              # эмулятор
 vfs/                     # примеры VFS: минимальный, несколько файлов, 3+ уровня вложенности
-scripts/                 # стартовые скрипты (.emu) и скрипты тестирования (.sh)
+tests/                 # стартовые скрипты (.emu) и скрипты тестирования (.sh)
 Тестирование
 bash
-bash scripts/stage2_config.sh   # параметры командной строки
-bash scripts/stage3_vfs.sh      # разные варианты VFS и ошибки загрузки
-python3 emulator.py --vfs vfs/several.csv --script scripts/all_commands.emu   # все команды
+bash tests/stage2_config.sh   # параметры командной строки
+bash tests/stage3_vfs.sh      # разные варианты VFS и ошибки загрузки
+python3 emulator.py --vfs vfs/several.csv --script tests/all_commands.emu   # все команды
 
 Этапы работы
 
